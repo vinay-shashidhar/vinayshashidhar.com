@@ -1,0 +1,8 @@
+
+index.v1.html.bak
+.DS_Store
+
+# Secrets — never commit (defense-in-depth; .env lives outside this repo anyway)
+.env
+.env.*
+*.env
