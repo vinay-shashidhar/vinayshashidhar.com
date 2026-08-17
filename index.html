@@ -8,7 +8,10 @@
   (function(){try{var k='vs-theme',s=localStorage.getItem(k);
     if(s){document.documentElement.setAttribute('data-theme',s);}
     else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches){document.documentElement.setAttribute('data-theme','dark');}
-  }catch(e){}})();
+  }catch(e){}
+  /* Mark JS as available. Reveal animations are gated on this class, so if the
+     script never runs the content stays visible instead of blank. */
+  try{document.documentElement.className+=' js';}catch(e){}})();
 </script>
 <title>Vinay Shashidhar — ML Director | 3× built AI teams 0→1</title>
 <meta name="description" content="Machine Learning leader — 3× stood up ML orgs from scratch, now driving AI-native products. Patents; published at ACL, KDD, ICML. Bengaluru, India.">
@@ -72,11 +75,13 @@
   --paper-2:#efebe1;
   --ink:#16140f;
   --ink-2:#403b32;
-  --ink-3:#736c5e;
+  --ink-3:#5c564a;
   --line:#d8d2c4;
   --line-2:#e6e1d4;
   --accent:#c72f0d;
   --accent-ink:#a8270b;
+  /* Text colour used on top of --accent fills. Must clear 4.5:1 in both themes. */
+  --on-accent:#fff;
   --card:#faf8f2;
   --shadow:rgba(22,20,15,.08);
 
@@ -97,6 +102,8 @@ html[data-theme="dark"]{
   --line-2:#211f19;
   --accent:#ff5a35;
   --accent-ink:#ff734f;
+  /* White on this orange is only ~3.1:1. Dark ink on it is ~6.2:1. */
+  --on-accent:#100f0c;
   --card:#16140f;
   --shadow:rgba(0,0,0,.5);
 }
@@ -109,24 +116,27 @@ body{
   background:var(--paper);
   color:var(--ink);
   font-family:var(--read);
-  font-size:18px;line-height:1.6;
-  font-weight:380;
+  font-size:18px;line-height:1.62;
+  font-weight:400;
   -webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;
   transition:background .5s ease,color .5s ease;
   overflow-x:hidden;
 }
-/* paper grain */
-body::before{
-  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
-  opacity:.5;mix-blend-mode:multiply;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");
-}
-html[data-theme="dark"] body::before{mix-blend-mode:screen;opacity:.6}
 
 a{color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--gutter);position:relative;z-index:1}
+/* Sticky top bar is 56px; keep anchor targets clear of it. */
+[id]{scroll-margin-top:78px}
+
+/* Keyboard users get a way past the nav. */
+.skip{
+  position:absolute;left:-9999px;top:0;z-index:100;
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
+  background:var(--accent);color:var(--on-accent);padding:10px 16px;text-decoration:none;
+}
+.skip:focus{left:12px;top:12px}
 
 /* ============ TOP BAR ============ */
 .topbar{
@@ -137,8 +147,9 @@ a{color:inherit}
   border-bottom:1px solid var(--line);
 }
 .topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:56px}
-.brand{font-family:var(--mono);font-size:.74rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;text-decoration:none}
-.brand b{color:var(--accent)}
+.brand{font-family:var(--mono);font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;white-space:nowrap}
+.brand b{color:var(--accent);font-weight:600}
+@media(max-width:520px){.brand{font-size:.64rem;letter-spacing:.1em}}
 .topnav{display:flex;align-items:center;gap:clamp(12px,2vw,26px)}
 .topnav a{font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink-3);transition:color .2s}
 .topnav a:hover{color:var(--accent)}
@@ -152,7 +163,7 @@ a{color:inherit}
   background:var(--card);cursor:pointer;display:grid;place-items:center;
   color:var(--ink);transition:border-color .2s,transform .3s,color .2s;
 }
-.theme-btn:hover{border-color:var(--accent);color:var(--accent);transform:rotate(40deg)}
+.theme-btn:hover{border-color:var(--accent);color:var(--accent)}
 .theme-btn svg{width:16px;height:16px}
 .theme-btn .moon{display:none}
 html[data-theme="dark"] .theme-btn .sun{display:none}
@@ -180,10 +191,10 @@ html[data-theme="dark"] .theme-btn .moon{display:block}
 }
 h1{
   font-family:var(--serif);
-  font-weight:340;
-  font-size:clamp(3rem,11vw,8.2rem);
-  line-height:.92;
-  letter-spacing:-.025em;
+  font-weight:400;
+  font-size:clamp(2.7rem,8.4vw,5.8rem);
+  line-height:1;
+  letter-spacing:-.02em;
   margin:0;
 }
 h1 .em{font-style:italic;font-weight:400;color:var(--accent)}
@@ -199,17 +210,12 @@ h1 .em{font-style:italic;font-weight:400;color:var(--accent)}
   display:grid;grid-template-columns:1fr;gap:clamp(28px,4vw,48px);
   align-items:start;
 }
-@media(min-width:860px){.hero-grid{grid-template-columns:1.55fr 1fr}}
+@media(min-width:760px){.hero-grid{grid-template-columns:1.5fr 1fr}}
 .lede{
   font-family:var(--read);
-  font-size:clamp(1.12rem,2vw,1.42rem);
-  line-height:1.5;color:var(--ink-2);
-  max-width:38ch;margin:0;font-weight:380;
-}
-.lede .drop{
-  float:left;font-family:var(--serif);font-style:italic;
-  font-size:3.4em;line-height:.7;font-weight:400;
-  margin:.06em .12em -.05em 0;color:var(--accent);
+  font-size:clamp(1.08rem,1.7vw,1.3rem);
+  line-height:1.58;color:var(--ink-2);
+  max-width:46ch;margin:0;font-weight:400;
 }
 /* hero spec sheet */
 .spec{border-top:1px solid var(--ink);font-family:var(--mono)}
@@ -229,8 +235,8 @@ h1 .em{font-style:italic;font-weight:400;color:var(--accent)}
   transition:background .2s,color .2s,border-color .2s,transform .2s;
 }
 .btn:hover{background:var(--ink);color:var(--paper);transform:translateY(-2px)}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-.btn.primary:hover{background:var(--accent-ink);border-color:var(--accent-ink);color:#fff}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.primary:hover{background:var(--accent-ink);border-color:var(--accent-ink);color:var(--on-accent)}
 .btn .arr{transition:transform .2s}
 .btn:hover .arr{transform:translate(2px,-2px)}
 
@@ -239,10 +245,10 @@ h1 .em{font-style:italic;font-weight:400;color:var(--accent)}
 .sec-head{
   display:flex;align-items:baseline;gap:18px;margin-bottom:clamp(30px,5vw,52px);
 }
-.sec-num{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;color:var(--accent);font-weight:600}
+.sec-num{font-family:var(--mono);font-size:.7rem;letter-spacing:.18em;color:var(--accent);font-weight:600}
 .sec-title{
-  font-family:var(--serif);font-weight:380;font-size:clamp(1.5rem,3.4vw,2.3rem);
-  letter-spacing:-.02em;margin:0;line-height:1;
+  font-family:var(--serif);font-weight:450;font-size:clamp(1.45rem,3vw,2.05rem);
+  letter-spacing:-.015em;margin:0;line-height:1.05;
 }
 .sec-rule{flex:1;height:1px;background:var(--line);align-self:center}
 
@@ -253,21 +259,23 @@ h1 .em{font-style:italic;font-weight:400;color:var(--accent)}
   position:relative;
 }
 .entry:first-of-type{border-top:1px solid var(--ink)}
+/* A quiet mono numeral reads as an index. The old giant italic numeral
+   competed with the job title for attention. */
 .entry .idx{
-  font-family:var(--serif);font-style:italic;font-weight:300;
-  font-size:clamp(2.4rem,6vw,4.6rem);line-height:.8;color:var(--ink-3);
-  transition:color .3s;letter-spacing:-.02em;
+  font-family:var(--mono);font-weight:600;
+  font-size:.74rem;line-height:2.6;color:var(--ink-3);
+  transition:color .3s;letter-spacing:.14em;
 }
 .entry:hover .idx{color:var(--accent)}
 .entry-body{min-width:0}
 .entry-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 18px}
-.entry-role{font-family:var(--serif);font-weight:420;font-size:clamp(1.25rem,2.6vw,1.85rem);letter-spacing:-.015em;margin:0;line-height:1.12}
+.entry-role{font-family:var(--serif);font-weight:500;font-size:clamp(1.2rem,2.2vw,1.6rem);letter-spacing:-.01em;margin:0;line-height:1.15}
 .entry-role .co{color:var(--accent)}
 .entry-dates{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);white-space:nowrap}
 .entry-ctx{font-family:var(--read);font-style:italic;font-size:.98rem;color:var(--ink-3);margin:.5rem 0 1rem;max-width:62ch}
 .entry-points{margin:0;padding:0;list-style:none}
 .entry-points li{
-  position:relative;padding-left:20px;margin:.5rem 0;color:var(--ink-2);font-size:1.0rem;line-height:1.5;max-width:70ch;
+  position:relative;padding-left:20px;margin:.55rem 0;color:var(--ink-2);font-size:1.02rem;line-height:1.58;max-width:72ch;
 }
 .entry-points li::before{
   content:"";position:absolute;left:0;top:.62em;width:8px;height:1px;background:var(--accent);
@@ -283,7 +291,7 @@ h1 .em{font-style:italic;font-weight:400;color:var(--accent)}
 
 /* ============ TWO-COL META (patents/pubs) ============ */
 .duo{display:grid;grid-template-columns:1fr;gap:clamp(40px,6vw,72px)}
-@media(min-width:820px){.duo{grid-template-columns:1fr 1fr}}
+@media(min-width:720px){.duo{grid-template-columns:1fr 1fr}}
 .mlist{margin:0;padding:0;list-style:none}
 .mlist li{padding:14px 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:3px}
 .mlist li:first-child{border-top:1px solid var(--ink)}
@@ -292,13 +300,14 @@ h1 .em{font-style:italic;font-weight:400;color:var(--accent)}
 .mlist .v{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
 .mlist .v b{color:var(--ink-2)}
 .mlist a.t{text-decoration:none;transition:color .2s}
-.mlist a.t:hover{color:var(--accent)}
-.mlist a.t .ext{font-family:var(--mono);font-size:.7rem;color:var(--ink-3);margin-left:6px;opacity:0;transition:opacity .2s}
-.mlist a.t:hover .ext{opacity:1;color:var(--accent)}
+.mlist a.t:hover,.mlist a.t:focus-visible{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+/* Always visible, so it is obvious which rows are links. */
+.mlist a.t .ext{font-family:var(--mono);font-size:.7rem;color:var(--ink-3);margin-left:6px;transition:color .2s}
+.mlist a.t:hover .ext{color:var(--accent)}
 .scholar-link{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);text-decoration:none;white-space:nowrap;transition:color .2s;margin-left:auto;align-self:center}
 .scholar-link:hover{color:var(--accent)}
-.granted{font-family:var(--mono);font-size:.6rem;font-weight:700;letter-spacing:.1em;color:#fff;background:var(--accent);padding:2px 7px;border-radius:2px;margin-left:8px;vertical-align:middle;text-transform:uppercase}
-.granted.pending{background:var(--ink-3)}
+.granted{font-family:var(--mono);font-size:.6rem;font-weight:700;letter-spacing:.1em;color:var(--on-accent);background:var(--accent);padding:2px 7px;border-radius:2px;margin-left:8px;vertical-align:middle;text-transform:uppercase}
+.granted.pending{background:var(--ink-3);color:var(--paper)}
 
 /* ============ EDUCATION ============ */
 .edu{display:grid;grid-template-columns:1fr;gap:0}
@@ -314,15 +323,15 @@ h1 .em{font-style:italic;font-weight:400;color:var(--accent)}
 .post{
   display:grid;grid-template-columns:auto 1fr auto;gap:clamp(14px,3vw,36px);align-items:baseline;
   padding:clamp(20px,3vw,30px) 0;border-top:1px solid var(--line);
-  text-decoration:none;color:inherit;position:relative;transition:padding-left .35s cubic-bezier(.2,.7,.2,1);
+  text-decoration:none;color:inherit;position:relative;
 }
 .post:first-child{border-top:1px solid var(--ink)}
 .post .pidx{font-family:var(--mono);font-size:.72rem;font-weight:600;color:var(--ink-3);letter-spacing:.06em;padding-top:.35em;transition:color .25s}
 .post:hover .pidx{color:var(--accent)}
 .post-main{min-width:0}
 .post-title{
-  font-family:var(--serif);font-weight:420;font-size:clamp(1.12rem,2.3vw,1.6rem);
-  letter-spacing:-.015em;line-height:1.18;margin:0;display:inline;
+  font-family:var(--serif);font-weight:500;font-size:clamp(1.1rem,2vw,1.42rem);
+  letter-spacing:-.01em;line-height:1.2;margin:0;display:inline;
   background-image:linear-gradient(var(--accent),var(--accent));
   background-size:0% 1px;background-position:0 1.18em;background-repeat:no-repeat;
   transition:background-size .4s cubic-bezier(.2,.7,.2,1);
@@ -343,8 +352,8 @@ h1 .em{font-style:italic;font-weight:400;color:var(--accent)}
 /* ============ CONTACT / FOOTER ============ */
 .colophon{padding:clamp(60px,10vw,120px) 0 clamp(40px,6vw,70px);text-align:center;position:relative}
 .colophon h2{
-  font-family:var(--serif);font-weight:300;font-size:clamp(2.2rem,8vw,5.2rem);
-  letter-spacing:-.03em;line-height:.95;margin:0 0 clamp(26px,5vw,44px);
+  font-family:var(--serif);font-weight:400;font-size:clamp(1.9rem,5vw,3.2rem);
+  letter-spacing:-.02em;line-height:1.08;margin:0 0 clamp(20px,4vw,32px);
 }
 .colophon h2 .em{font-style:italic;color:var(--accent)}
 .contact-links{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
@@ -357,26 +366,41 @@ h1 .em{font-style:italic;font-weight:400;color:var(--accent)}
 .foot-meta a:hover{color:var(--accent)}
 
 /* ============ REVEAL ANIM ============ */
-.reveal{opacity:0;transform:translateY(22px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
-.reveal.in{opacity:1;transform:none}
-@media (prefers-reduced-motion:reduce){.reveal{opacity:1!important;transform:none!important;transition:none}}
+/* Default state is VISIBLE. The hidden state only applies once the head script
+   has added .js to <html>, so a blocked or broken script can never leave the
+   page blank. */
+.reveal{opacity:1;transform:none}
+html.js .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+html.js .reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  html.js .reveal{opacity:1!important;transform:none!important;transition:none}
+}
 
 /* hero staggered load */
-.load{opacity:0;transform:translateY(16px);animation:rise .9s cubic-bezier(.2,.7,.2,1) forwards}
+.load{opacity:1;transform:none}
+html.js .load{opacity:0;transform:translateY(14px);animation:rise .8s cubic-bezier(.2,.7,.2,1) forwards}
 @keyframes rise{to{opacity:1;transform:none}}
-.d1{animation-delay:.05s}.d2{animation-delay:.18s}.d3{animation-delay:.32s}.d4{animation-delay:.46s}.d5{animation-delay:.6s}
-@media (prefers-reduced-motion:reduce){.load{animation:none;opacity:1;transform:none}}
+.d1{animation-delay:.05s}.d2{animation-delay:.16s}.d3{animation-delay:.28s}.d4{animation-delay:.4s}.d5{animation-delay:.52s}
+@media (prefers-reduced-motion:reduce){
+  html.js .load{animation:none;opacity:1;transform:none}
+}
 
-::selection{background:var(--accent);color:#fff}
+/* No hover/press movement for people who ask for reduced motion. */
+@media (prefers-reduced-motion:reduce){
+  .btn:hover,.btn:hover .arr,.post:hover .go,.theme-btn:hover{transform:none!important}
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+
+::selection{background:var(--accent);color:var(--on-accent)}
 
 /* ============ PRINT ============ */
 @media print{
   :root{--paper:#fff;--card:#fff;--ink:#000}
-  body::before,.topbar,.theme-btn,.cta-row,.contact-links,.foot-meta,.sec-rule{display:none!important}
+  .skip,.topbar,.theme-btn,.cta-row,.contact-links,.foot-meta,.sec-rule{display:none!important}
   body{font-size:10.5pt}
   .section,.hero{padding:14px 0;border-color:#bbb}
   h1{font-size:34pt}
-  .reveal,.load{opacity:1!important;transform:none!important;animation:none}
+  html.js .reveal,html.js .load,.reveal,.load{opacity:1!important;transform:none!important;animation:none}
   a{text-decoration:none;color:#000}
   a[href^="http"]::after{content:" (" attr(href) ")";font-size:.8em;color:#444;word-break:break-all}
 }
@@ -384,18 +408,21 @@ h1 .em{font-style:italic;font-weight:400;color:var(--accent)}
 </head>
 <body>
 
+<a class="skip" href="#work">Skip to content</a>
+
 <!-- ============ TOP BAR ============ -->
 <div class="topbar" id="top">
   <div class="wrap">
-    <a class="brand" href="#top">V<b>·</b>SHASHIDHAR</a>
-    <nav class="topnav">
+    <a class="brand" href="#top">Vinay<b>·</b>Shashidhar</a>
+    <nav class="topnav" aria-label="Primary">
       <a class="nlink" href="#work">Work</a>
       <a class="nlink" href="#patents">Patents</a>
       <a class="nlink" href="#writing">Writing</a>
+      <a class="nlink" href="#education">Education</a>
       <a class="nlink" href="#contact">Contact</a>
-      <button class="theme-btn" id="themeBtn" aria-label="Toggle dark mode" title="Toggle theme">
-        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
-        <svg class="moon" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.8A8.5 8.5 0 0 1 11.2 3a7 7 0 1 0 9.8 9.8Z"/></svg>
+      <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch to dark mode" title="Switch theme">
+        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+        <svg class="moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M21 12.8A8.5 8.5 0 0 1 11.2 3a7 7 0 1 0 9.8 9.8Z"/></svg>
       </button>
     </nav>
   </div>
@@ -418,7 +445,7 @@ h1 .em{font-style:italic;font-weight:400;color:var(--accent)}
 
     <div class="hero-grid">
       <p class="lede load d4">
-        <span class="drop">A</span> machine-learning leader with 15+ years building and scaling AI
+        A machine-learning leader with 15+ years building and scaling AI
         functions across FinTech, gaming, travel, and e-commerce. Three times I've stood
         up an ML organization from scratch — most recently driving a company-wide shift to
         AI-native engineering. Inventor on two granted US patents and published at ACL, KDD,
@@ -446,7 +473,7 @@ h1 .em{font-style:italic;font-weight:400;color:var(--accent)}
 <section class="section" id="work">
   <div class="wrap">
     <div class="sec-head reveal">
-      <span class="sec-num">§ 01</span>
+      <span class="sec-num">01</span>
       <h2 class="sec-title">Selected Experience</h2>
       <span class="sec-rule"></span>
     </div>
@@ -487,7 +514,6 @@ h1 .em{font-style:italic;font-weight:400;color:var(--accent)}
           <li>Built real-time ML for <b>fair matchmaking &amp; skill assessment</b> via generative modeling; skill framework shared with national gaming regulators.</li>
           <li>Established the ML division from scratch for a real-time, high-concurrency consumer platform.</li>
           <li>Built predictive churn for highest-LTV users (drop-off −4%) plus personalized next-best-action.</li>
-          <li>Spearheaded an emotionally intelligent <b>Hindi voice-to-voice support bot</b> (speech-to-text, text-to-speech, speech-to-speech).</li>
         </ul>
         <div class="metricbar">
           <span class="metric"><b>&gt;2%</b> absolute retention</span>
@@ -565,7 +591,7 @@ h1 .em{font-style:italic;font-weight:400;color:var(--accent)}
 <section class="section" id="patents">
   <div class="wrap">
     <div class="sec-head reveal">
-      <span class="sec-num">§ 02</span>
+      <span class="sec-num">02</span>
       <h2 class="sec-title">Patents &amp; Publications</h2>
       <span class="sec-rule"></span>
       <a class="scholar-link" href="https://scholar.google.com/citations?user=kRJsTL8AAAAJ&amp;hl=en" target="_blank" rel="me noopener">Google&nbsp;Scholar&nbsp;↗</a>
@@ -625,7 +651,7 @@ h1 .em{font-style:italic;font-weight:400;color:var(--accent)}
 <section class="section" id="writing">
   <div class="wrap">
     <div class="sec-head reveal">
-      <span class="sec-num">§ 03</span>
+      <span class="sec-num">03</span>
       <h2 class="sec-title">Writing</h2>
       <span class="sec-rule"></span>
     </div>
@@ -689,7 +715,7 @@ h1 .em{font-style:italic;font-weight:400;color:var(--accent)}
 <section class="section" id="education">
   <div class="wrap">
     <div class="sec-head reveal">
-      <span class="sec-num">§ 04</span>
+      <span class="sec-num">04</span>
       <h2 class="sec-title">Education</h2>
       <span class="sec-rule"></span>
     </div>
@@ -713,8 +739,8 @@ h1 .em{font-style:italic;font-weight:400;color:var(--accent)}
 
 <footer class="colophon" id="contact">
   <div class="wrap">
-    <h2 class="reveal">Let's build something <span class="em">unforgettable.</span></h2>
-    <p class="reveal" style="margin:0 0 18px;color:var(--ink-3);max-width:32ch;font-size:1.05rem">The best way to reach me is a LinkedIn message.</p>
+    <h2 class="reveal">Leadership, research, and <span class="em">applied machine learning.</span></h2>
+    <p class="reveal" style="margin:0 auto 22px;color:var(--ink-3);max-width:44ch;font-size:1.02rem">The best way to reach me is a message on LinkedIn.</p>
     <div class="contact-links reveal">
       <a class="btn primary" href="https://www.linkedin.com/in/vinayshashidhar/" target="_blank" rel="me noopener">Message me on LinkedIn <span class="arr">↗</span></a>
       <a class="btn" href="https://github.com/vinay-shashidhar" target="_blank" rel="me noopener">GitHub <span class="arr">↗</span></a>
@@ -731,32 +757,51 @@ h1 .em{font-style:italic;font-weight:400;color:var(--accent)}
 
 <script>
 (function(){
-  // ---- Theme toggle (initial theme is set in <head> to prevent FOUC) ----
   var root=document.documentElement, key='vs-theme';
-  var btn=document.getElementById('themeBtn');
-  btn&&btn.addEventListener('click',function(){
-    var next=root.getAttribute('data-theme')==='dark'?'light':'dark';
-    root.setAttribute('data-theme',next);
-    try{localStorage.setItem(key,next);}catch(e){}
-  });
-
-  // ---- Scroll reveal ----
   var els=document.querySelectorAll('.reveal');
-  if('IntersectionObserver' in window){
-    var io=new IntersectionObserver(function(entries){
-      entries.forEach(function(en){
-        if(en.isIntersecting){
-          var sibs=[].slice.call(en.target.parentNode.children).filter(function(c){return c.classList.contains('reveal');});
-          var i=sibs.indexOf(en.target);
-          en.target.style.transitionDelay=(Math.max(0,i)*60)+'ms';
-          en.target.classList.add('in');
-          io.unobserve(en.target);
-        }
-      });
-    },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
-    els.forEach(function(el){io.observe(el);});
-  }else{
-    els.forEach(function(el){el.classList.add('in');});
+
+  // Last-resort safety net: whatever else happens below, every section is
+  // visible within 3 seconds of load.
+  function showAll(){for(var i=0;i<els.length;i++){els[i].classList.add('in');}}
+  var net=setTimeout(showAll,3000);
+
+  try{
+    // ---- Theme toggle (initial theme is set in <head> to prevent FOUC) ----
+    var btn=document.getElementById('themeBtn');
+    function label(){
+      if(!btn) return;
+      var dark=root.getAttribute('data-theme')==='dark';
+      btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+      btn.setAttribute('title', dark ? 'Switch to light mode' : 'Switch to dark mode');
+    }
+    label();
+    btn&&btn.addEventListener('click',function(){
+      var next=root.getAttribute('data-theme')==='dark'?'light':'dark';
+      root.setAttribute('data-theme',next);
+      label();
+      try{localStorage.setItem(key,next);}catch(e){}
+    });
+
+    // ---- Scroll reveal ----
+    if('IntersectionObserver' in window){
+      var io=new IntersectionObserver(function(entries){
+        entries.forEach(function(en){
+          if(en.isIntersecting){
+            var sibs=[].slice.call(en.target.parentNode.children).filter(function(c){return c.classList.contains('reveal');});
+            var i=sibs.indexOf(en.target);
+            en.target.style.transitionDelay=(Math.max(0,i)*60)+'ms';
+            en.target.classList.add('in');
+            io.unobserve(en.target);
+          }
+        });
+      },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
+      els.forEach(function(el){io.observe(el);});
+      clearTimeout(net); // observer is live, the net is no longer needed
+    }else{
+      clearTimeout(net); showAll();
+    }
+  }catch(e){
+    clearTimeout(net); showAll();
   }
 })();
 </script>
